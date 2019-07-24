@@ -1,0 +1,10 @@
+{% extends "admin/index.html" %}
+
+{% block sidebar %}
+	{{ block.super }}
+	{% load admin_urls %}
+		<div id="content-main">
+			<input type="submit" value="Relatórios"  onclick="window.location='{% url 'admin:relatorios' %}';">
+	   </div>
+
+ {% endblock %}
