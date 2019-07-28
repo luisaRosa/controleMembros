@@ -36,7 +36,7 @@ class Membro(models.Model):
 
 
 	class Meta:
-		ordering = ['matricula', 'cargo']
+		ordering = ['matricula']
 
 	STATUS_CHOICES = (('A', 'Ativo'),('I', 'Inativo'),)
 	SEXO_CHOICES = (('M', 'Masculino'),('F', 'Feminino'),)
@@ -54,10 +54,12 @@ class Membro(models.Model):
 
 
 	status = models.CharField('Status', max_length=5, choices=STATUS_CHOICES, default='A')
+	foto = models.ImageField('Foto', default='genome.png')
 	matricula= models.BigIntegerField('Matrícula', unique=True )
-	data_cadastro = models.CharField('Data de Cadastro',max_length=10, default=(data))
-	congregacao = models.ForeignKey(Congregacao, on_delete=models.CASCADE)
+	data_cadastro = models.DateField('Data de Cadastro',max_length=10, default=d)
+	congregacao = models.ForeignKey( Congregacao, on_delete=models.CASCADE)
 	cargo = models.ForeignKey(CargoEclesiastico, on_delete=models.CASCADE)
+
 	# Dados pessoais
 	nome = models.CharField('Nome', max_length=100)
 	sexo = models.CharField('Sexo', max_length=5, choices=SEXO_CHOICES, default='M')
@@ -70,9 +72,18 @@ class Membro(models.Model):
 	profissao = models.CharField('Profissão', max_length=15, default="Estudante")
 	naturalidade = models.CharField('Naturalidade', max_length=15, default="Rio de Janeiro")
 	nacionalidade = models.CharField('Nacionalidade', max_length=15, default='Brasileiro(a)')
+
 	# Contato
 	telefone = models.BigIntegerField('Telefone')
 	email = models.EmailField('Email', blank=True)
+
+	#endereco
+	descricao = models.CharField('Endereço', max_length=100)
+	complemento = models.CharField('Complemento', max_length=50)
+	bairro =  models.CharField('Bairro', max_length=30, default="Tijuca")
+	cidade = models.CharField('Cidade', max_length=30, default="Rio de Janeiro")
+	estado = BRStateField(default="RJ")
+	cep = models.BigIntegerField('CEP')
 
 	def __str__(self):
 		return self.nome

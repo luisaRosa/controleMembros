@@ -1,9 +1,76 @@
-{% extends "admin/change_form.html" %}
+{% extends "admin/base_site.html" %}
 {% load i18n static %}
 
-{% block bodyclass %}
-
+{% block breadcrumbs %}
+<div class="breadcrumbs">    
+        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; Relatórios</div>
 {% endblock %}
+
+&rsaquo; {{ title }}
+{% block content_title %}<h1>Relatórios </h1>{% endblock %}
 
 {% block content %}
+
+<div id="content-main">
+    <div class="app-{{ app.app_label }} module">
+        <table>
+            <caption>
+                Relatórios Usuais
+            </caption>                
+            <tr class="model-membros">                   
+                <th scope="row">Aniversariantes do mês</th>   
+                    {% for i in i|rjust:10  %}
+                        <td>&nbsp;</td>  
+                    {% endfor %}           
+                <td><a class="addlink">Imprimir</a></td>                    
+            </tr>
+            <tr class="model-membros">                   
+                <th scope="row">Relação de presença na reunião de obreiros</th>   
+                {% for i in i|rjust:10 %}
+                    <td>&nbsp;</td>  
+                {% endfor %}           
+                <td><a class="addlink">Imprimir</a></td>                    
+            </tr>
+                
+        </table>
+    </div>
+    <div class="app-{{ app.app_label }} module">
+            <table>
+                <caption>
+                    Relatórios Estatísticos
+                </caption>                
+                <tr class="model-membros">                   
+                    <th scope="row"></th>   
+                        {% for i in i|rjust:10 %}
+                            <td>&nbsp;</td>  
+                        {% endfor %}           
+                    <td><a class="addlink">Imprimir</a></td>                    
+                </tr>
+                <tr class="model-membros">                   
+                    <th scope="row"></th>   
+                    {% for i in i|rjust:10  %}
+                        <td>&nbsp;</td>  
+                    {% endfor %}           
+                    <td><a class="addlink"> Imprimir</a></td>                    
+                </tr>
+                    
+            </table>
+        </div>
+       
+                        
+                </table>
+            </div>
+
+    <h2>Relatórios Personalizados</h2>
+    
+    
+</div>
+        
+
+
+
+       
+
 {% endblock %}
+

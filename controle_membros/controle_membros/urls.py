@@ -17,13 +17,12 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 
-
-from django.contrib.admin import AdminSite
-
-admin.site.site_header = settings.ADMIN_SITE_HEADER
+admin.site.index_template = '../templates/admin/aca.html'
+admin.site.site_header = "IADTG - Controle de Membros"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    #path('relatorios/', report, name='relatorios'),
     #path('admin/relatorios/', AdminSite.admin_view(genReport), name='relatorios')
     #path('admin/teste/', genReport, name='relatorios'),
 

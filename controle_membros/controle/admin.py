@@ -1,14 +1,11 @@
 from django.contrib import admin
+from django.db import models
 from django.contrib.admin import SimpleListFilter
 from django.http import HttpResponse, Http404
 from .models import CargoEclesiastico, Membro, Congregacao, Endereco, Historico
 from django.contrib.admin import AdminSite
-from django.urls import path
-from django.conf.urls import url
-from django.contrib import admin
 
 # Register your models here.
-
 
 @admin.register(CargoEclesiastico)
 class CargoAdmin(admin.ModelAdmin):
@@ -22,9 +19,9 @@ class StatusFilter(SimpleListFilter):
 
     def lookups(self, request, model_admin):
         return (
-            (None, 'Ativo'),
-            ('I', 'Inativo'),
-            ('all', 'All'),
+            (None, 'Ativos'),
+            ('I', 'Inativos'),
+            ('all', 'Todos'),
         )
 
     def choices(self, cl):
@@ -48,18 +45,34 @@ class StatusFilter(SimpleListFilter):
 @admin.register(Membro)
 class MembroAdmin(admin.ModelAdmin):
 
+    formfield_overrides = {
+     models.DateField: {'input_formats': ('%d/%m/%Y',)},
+   }
 
 
-     fieldsets = [
-        ("Cadastrar Membro", {'fields': ['status','matricula','data_cadastro','nome', 'data_nascimento','sexo','estado_civil',
-            'conjuge', 'identidade','orgao_emissor','cpf','congregacao','naturalidade','nacionalidade','cargo','email', 'telefone',
-                            ], 'classes':['wide', 'extrapretty']})]
-     list_filter = (StatusFilter, 'cargo', 'congregacao')
-     readonly_fields=('data_cadastro',)
-     list_display=('matricula','cargo','nome', 'congregacao','status' )
-     search_fields = ('matricula', 'nome')
+    date_hierarchy = 'data_cadastro'
+
+    fieldsets = [
+        ("Dados Cadastrais", {'fields': ['matricula', 'status','data_cadastro' ]}),
+        ("Dados Pessoais",{'fields':[('nome', 'sexo'), 'data_nascimento', 'cpf', ('identidade', 'orgao_emissor'),
+       ( 'estado_civil', 'conjuge'), ('naturalidade', 'nacionalidade')]}),
+        ("Dados Eclesiásticos", {'fields':['congregacao', 'cargo']}),
+        ("Dados para Contato", {'fields':['telefone', 'email']}),
+        ("Dados de Endereço", {'fields':[('descricao', 'complemento'), ('bairro', 'cidade', 'estado'), 'cep']})
+
+        ]
 
 
+   # 'nome', 'data_nascimento','sexo','estado_civil', 'classes':['wide', 'extrapretty']
+   #         'conjuge', ('identidade','orgao_emissor'),'cpf',('naturalidade','nacionalidade'),('congregacao','cargo'),'email', 'telefone',
+    list_filter = (StatusFilter, 'cargo', 'congregacao')
+    list_select_related = ('cargo', 'congregacao')
+    readonly_fields=('data_cadastro',)
+    list_display=('matricula','nome', 'cargo', 'congregacao','status' )
+    list_display_links = ('matricula','nome',)
+    search_fields = ('matricula', 'nome')
+    radio_fields = {"sexo": admin.HORIZONTAL, "estado_civil":admin.HORIZONTAL, "status":admin.HORIZONTAL}
+    autocomplete_fields = ['congregacao']
 
 
 
@@ -76,6 +89,7 @@ class CongregacaoAdmin(admin.ModelAdmin):
         ("Cadastrar Congregação", {'fields': ['nome','setor',]})]
 
      list_filter = ('nome', 'setor',)
+     search_fields = ['nome']
 
 @admin.register(Historico)
 class HistoricoAdmin(admin.ModelAdmin):
@@ -83,25 +97,3 @@ class HistoricoAdmin(admin.ModelAdmin):
         ("Cadastrar Histórico", {'fields': ['membro','data_batismo',]})]
 
      list_filter = ('membro',)
-     #list_display = ('data_batismo_', )
-
-class TemplateAdmin(admin.ModelAdmin):
-    AdminSite.index_template = '../templates/admin/aca.html'
-    change_form_template = '../templates/admin/reports.html'
-    
-
-class CustomAdminSite(admin.AdminSite):
-
-    def get_urls(self):
-        urls = super(CustomAdminSite, self).get_urls()
-        custom_urls = [
-            url(r'desired/path$', self.admin_view(self.genReport), name="relatorios"),
-        ]
-        return urls + custom_urls
-
-    def genReport(request):
-        context = dict(
-           # Include common variables for rendering the admin template.
-           self.admin_site.each_context(request),
-        )
-        return TemplateResponse(request, "reports.html", context)

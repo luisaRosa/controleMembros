@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import os
 from django.conf.locale.es import formats as es_formats
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -31,17 +32,15 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-INSTALLED_APPS = [
-
-    'django.contrib.admin',
+INSTALLED_APPS = [    
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'controle',
-    'localflavor',
-    'admin_report',
+    'controle_membros.apps.MyAdminConfig'
+    
 ]
 
 MIDDLEWARE = [
@@ -124,7 +123,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-ADMIN_SITE_HEADER = " Igreja Assembleia de Deus Tijuca Gloriosa"
+DATE_FORMAT = "d M Y"
 
-
-es_formats.DATE_FORMAT = "d M Y"
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
