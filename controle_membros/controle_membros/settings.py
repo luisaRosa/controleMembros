@@ -124,6 +124,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 DATE_FORMAT = "d M Y"
+DATE_INPUT_FORMATS = ('%d/%m/%Y',)
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+

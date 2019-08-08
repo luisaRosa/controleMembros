@@ -5,6 +5,7 @@ from localflavor.br.models import *
 from datetime import date
 from django import forms
 import datetime
+from django.db.models.functions import Extract
 
 # Create your models here.
 
@@ -40,6 +41,9 @@ class Membro(models.Model):
 
 	STATUS_CHOICES = (('A', 'Ativo'),('I', 'Inativo'),)
 	SEXO_CHOICES = (('M', 'Masculino'),('F', 'Feminino'),)
+	RECEBIMENTO = (('A', ' Por aclamação'),
+	('M', 'Com carta de mudança'),
+	('B', 'Por Batismo nas Águas'))
 
 	ESTADO_CIVIL_CHOICES = (
         ('S', u'Solteiro(a)'),
@@ -85,8 +89,45 @@ class Membro(models.Model):
 	estado = BRStateField(default="RJ")
 	cep = models.BigIntegerField('CEP')
 
+	#historico
+	dataBatismoA = models.DateField(verbose_name='Data de Batismo nas Águas')
+	dataBatismoE = models.DateField(verbose_name='Data de Batismo com o Espírito Santo', blank=True)
+	recebimento = models.CharField(verbose_name='Recebimento', max_length=5, choices=RECEBIMENTO, default='B')
+	addInformacoes = models.TextField(verbose_name='Informações Adicionais', blank=True)
+
 	def __str__(self):
 		return self.nome
+
+	def aniversariantes_mes(self, congregacao):
+
+		data  = date.today() # pega a data de hoje
+		
+		if int(congregacao) > 0:
+			membros = Membro.objects.filter(congregacao_id =congregacao).order_by(Extract('data_nascimento','day'))			
+		else:
+			membros = Membro.objects.all().order_by(Extract('data_nascimento','day'))
+			
+		print(membros)
+
+		aniversariantes = []
+
+		for membro in membros:			
+			if data.month == membro.data_nascimento.month:
+				aniversariantes.append(membro)			
+					
+		return aniversariantes
+
+	def lista_obreiros(self):
+
+		membros = 	Membro.objects.all()
+		obreiros = []
+
+		for membro in membros:
+			if membro.cargo.cargo != 'Membro':
+				obreiros.append(membro)
+		return obreiros
+
+
 
 	def ative_members():
 		if self.status =='A':

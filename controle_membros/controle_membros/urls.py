@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
+from django.conf.urls.static import static
 
 admin.site.index_template = '../templates/admin/aca.html'
 admin.site.site_header = "IADTG - Controle de Membros"
@@ -27,3 +28,4 @@ urlpatterns = [
     #path('admin/teste/', genReport, name='relatorios'),
 
 ]
+#urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

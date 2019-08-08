@@ -1,5 +1,7 @@
 {% extends "admin/base_site.html" %}
 {% load i18n static %}
+{% load staticfiles %}
+
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">    
@@ -7,10 +9,12 @@
     &rsaquo; Relatórios</div>
 {% endblock %}
 
-&rsaquo; {{ title }}
-{% block content_title %}<h1>Relatórios </h1>{% endblock %}
+&rsaquo; 
+{% block content_title %}<h1>  Relatórios Automáticos </h1>{% endblock %}
 
 {% block content %}
+
+
 
 <div id="content-main">
     <div class="app-{{ app.app_label }} module">
@@ -18,51 +22,82 @@
             <caption>
                 Relatórios Usuais
             </caption>                
-            <tr class="model-membros">                   
-                <th scope="row">Aniversariantes do mês</th>   
-                    {% for i in i|rjust:10  %}
+            <tr class="model-membros">              
+                    <form method="get" action="aniversariantes">     
+                <th scope="row">  Aniversariantes do mês  - 
+                
+                    <select name='l1'>
+                        <option value="0">Campo</option>
+                        {% for c in options %}   
+                            <option value="{{c.id}}">{{c.nome}}</option>
+                        {% endfor %}
+                    </select>
+               
+                </th>
+                     
+                    {% for i in i|rjust:13  %}
                         <td>&nbsp;</td>  
                     {% endfor %}           
-                <td><a class="addlink">Imprimir</a></td>                    
+                <td><input type="submit" class="ab" value="Imprimir" ></td>       
+              </form>             
             </tr>
             <tr class="model-membros">                   
                 <th scope="row">Relação de presença na reunião de obreiros</th>   
-                {% for i in i|rjust:10 %}
+                {% for i in i|rjust:13 %}
                     <td>&nbsp;</td>  
                 {% endfor %}           
-                <td><a class="addlink">Imprimir</a></td>                    
+                <td><a type="submit" class="addprint"  href = 'obreiros';" value="Imprimir" >Imprimir</a></td>                  
             </tr>
                 
         </table>
     </div>
-    <div class="app-{{ app.app_label }} module">
-            <table>
-                <caption>
-                    Relatórios Estatísticos
-                </caption>                
-                <tr class="model-membros">                   
-                    <th scope="row"></th>   
-                        {% for i in i|rjust:10 %}
-                            <td>&nbsp;</td>  
-                        {% endfor %}           
-                    <td><a class="addlink">Imprimir</a></td>                    
-                </tr>
-                <tr class="model-membros">                   
-                    <th scope="row"></th>   
-                    {% for i in i|rjust:10  %}
-                        <td>&nbsp;</td>  
-                    {% endfor %}           
-                    <td><a class="addlink"> Imprimir</a></td>                    
-                </tr>
-                    
-            </table>
-        </div>
-       
-                        
-                </table>
-            </div>
+   
+    <h1>Relatórios Personalizados</h1>
+    <h2>Informe os dados desejados para criar um relatório personalizado</h2>
+    <br>
 
-    <h2>Relatórios Personalizados</h2>
+    <label>Título do Relatório:</label>  &nbsp; <input type="text" size="70">
+    <br>
+    
+   
+    
+    <br>
+
+    <h3>Dados de Membros:</h3>
+    <br>
+    
+   
+    <table>     
+            <tr>
+                        <th scope="row"></th>
+                    <td><input type="checkbox" name='matricula' value="matricula"> Matrícula</td>   
+                    <td>&nbsp;</td>                    
+                    <td><input type="checkbox" name='status' value="status"> Status </td>  
+                    <td>&nbsp;</td>
+                    <td><input type="checkbox" name='nome' value="nome"> Nome</td>
+                    <td>&nbsp;</td>
+                    <td> <input type="checkbox" name='idade' value="idade"> Idade</td>
+                    <td>&nbsp;</td>
+                    <td> <input type="checkbox" name='cargo' value="cargo"> Cargo</td>
+                    <td>&nbsp;</td>
+                    <td> <input type="checkbox" name='congregacao' value="congregacao"> Congregação</td>
+                    <td>&nbsp;</td>
+              
+    </table>
+    <br>
+    <h3>Filtrar por:</h3>
+    <br>
+    <label>Cargo Eclesiástico: </label><select>s</select> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <label>Congregação: </label><select></select> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <label>Idade: </label><select></select>
+
+
+    <div id="content-main" > 
+        <br> 
+            <input  type="submit" value="Gerar Relatório"   onclick="window.location='';">      
+			
+	   </div>
+    
     
     
 </div>

@@ -44,6 +44,14 @@ class StatusFilter(SimpleListFilter):
 
 @admin.register(Membro)
 class MembroAdmin(admin.ModelAdmin):
+    
+    class Media:
+        print("media")
+        css = {
+        'all': ('icons_change.css',)
+         }
+
+    change_form_template = "../templates/admin/change_form_membro.html"
 
     formfield_overrides = {
      models.DateField: {'input_formats': ('%d/%m/%Y',)},
@@ -58,7 +66,8 @@ class MembroAdmin(admin.ModelAdmin):
        ( 'estado_civil', 'conjuge'), ('naturalidade', 'nacionalidade')]}),
         ("Dados Eclesiásticos", {'fields':['congregacao', 'cargo']}),
         ("Dados para Contato", {'fields':['telefone', 'email']}),
-        ("Dados de Endereço", {'fields':[('descricao', 'complemento'), ('bairro', 'cidade', 'estado'), 'cep']})
+        ("Dados de Endereço", {'fields':[('descricao', 'complemento'), ('bairro', 'cidade', 'estado'), 'cep']}),
+        ("Histórico", {'fields':[('dataBatismoA', 'dataBatismoE'), 'recebimento', 'addInformacoes']})
 
         ]
 
@@ -71,7 +80,10 @@ class MembroAdmin(admin.ModelAdmin):
     list_display=('matricula','nome', 'cargo', 'congregacao','status' )
     list_display_links = ('matricula','nome',)
     search_fields = ('matricula', 'nome')
-    radio_fields = {"sexo": admin.HORIZONTAL, "estado_civil":admin.HORIZONTAL, "status":admin.HORIZONTAL}
+    radio_fields = {"sexo": admin.HORIZONTAL,
+     "estado_civil":admin.HORIZONTAL,
+      "status":admin.HORIZONTAL,
+      "recebimento":admin.HORIZONTAL}
     autocomplete_fields = ['congregacao']
 
 
