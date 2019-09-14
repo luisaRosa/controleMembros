@@ -1,6 +1,7 @@
 {% extends "admin/base_site.html" %}
 {% load i18n static %}
 {% load staticfiles %}
+{ % load static % } 
 
 
 {% block breadcrumbs %}
@@ -13,7 +14,12 @@
 {% block content_title %}<h1>  Relatórios Automáticos </h1>{% endblock %}
 
 {% block content %}
-
+<script>
+        function resetForm() {
+          /*Put all the data posting code here*/
+         document.getElementById("reportP").reset();
+        }
+</script>
 
 
 <div id="content-main">
@@ -23,7 +29,7 @@
                 Relatórios Usuais
             </caption>                
             <tr class="model-membros">              
-                    <form method="get" action="aniversariantes">     
+            <form method="get" action="aniversariantes">     
                 <th scope="row">  Aniversariantes do mês  - 
                 
                     <select name='l1'>
@@ -55,48 +61,68 @@
     <h1>Relatórios Personalizados</h1>
     <h2>Informe os dados desejados para criar um relatório personalizado</h2>
     <br>
-
-    <label>Título do Relatório:</label>  &nbsp; <input type="text" size="70">
-    <br>
-    
-   
-    
-    <br>
-
-    <h3>Dados de Membros:</h3>
-    <br>
-    
-   
-    <table>     
+    <form method="post" action="personalizados" id="reportP"> {% csrf_token %}
+        <label>Título do Relatório:</label>  &nbsp; <input name="titulo" type="text" size="70" required>
+        <br><br>
+        <h3>Dados de Membros:</h3>
+        <br>  
+        <table>     
             <tr>
-                        <th scope="row"></th>
-                    <td><input type="checkbox" name='matricula' value="matricula"> Matrícula</td>   
-                    <td>&nbsp;</td>                    
-                    <td><input type="checkbox" name='status' value="status"> Status </td>  
-                    <td>&nbsp;</td>
-                    <td><input type="checkbox" name='nome' value="nome"> Nome</td>
-                    <td>&nbsp;</td>
-                    <td> <input type="checkbox" name='idade' value="idade"> Idade</td>
-                    <td>&nbsp;</td>
-                    <td> <input type="checkbox" name='cargo' value="cargo"> Cargo</td>
-                    <td>&nbsp;</td>
-                    <td> <input type="checkbox" name='congregacao' value="congregacao"> Congregação</td>
-                    <td>&nbsp;</td>
-              
-    </table>
-    <br>
-    <h3>Filtrar por:</h3>
-    <br>
-    <label>Cargo Eclesiástico: </label><select>s</select> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <label>Congregação: </label><select></select> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <label>Idade: </label><select></select>
-
-
-    <div id="content-main" > 
-        <br> 
-            <input  type="submit" value="Gerar Relatório"   onclick="window.location='';">      
+                <th scope="row"></th>
+                <td><input type="checkbox" name='option' value="matricula"> Matrícula</td>   
+                <td>&nbsp;</td>                    
+                <td><input type="checkbox" name='option' value="status"> Status </td>  
+                <td>&nbsp;</td>
+                <td><input type="checkbox" name='option' value="nome"> Nome</td>
+                <td>&nbsp;</td>
+                <td> <input type="checkbox" name='option' value="data_nascimento"> Idade</td>
+                <td>&nbsp;</td>
+                <td> <input type="checkbox" name='option' value="cargo"> Cargo</td>
+                <td>&nbsp;</td>
+                <td> <input type="checkbox" name='option' value="congregacao"> Congregação</td>
+                <td>&nbsp;</td>              
+        </table>
+        <br>
+        <h3>Filtrar por:</h3>
+        <br>
+        <label> Cargo Eclesiástico: </label>
+        <select name='cargo'>   
+                <option value="0">Todos os membros </option> 
+                <option value="-1">Obreiros</option>            
+                {% for c in cargos %}   
+                    <option value="{{c.id}}"> {{c.cargo}}</option>
+                {% endfor %}
+            </select> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <label> Congregação: </label>
+        <select name='congregacao'>    
+                <option value="0"> Todo campo </option>             
+                {% for c in options %}   
+                    <option value="{{c.id}}"> {{c.nome}}</option>
+                {% endfor %}
+            </select>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        
+        <label>Idade: </label>
+        <select name='idade_'> 
+            <option value="0">Todas</option>               
+            <option value="1"> Menos de 18 anos</option>
+            <option value="2"> Entre 18 e 24</option>
+            <option value="3"> Entre 24 e 30</option> 
+            <option value="4"> Entre 30 e 60</option>
+            <option value="5"> Mais de 60</option>                
+        </select>   
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <label>Situação: </label>
+        <select name='situacao'> 
+            <option value="0">Todos</option> 
+            <option value="A"> Ativos</option>
+            <option value="I"> Inativos</option>
+                       
+                         
+        </select>   
+        <br> <br> <br>
+            <input  type="submit" value="Gerar Relatório"   >      
 			
-	   </div>
+    </form>
     
     
     
@@ -108,4 +134,6 @@
        
 
 {% endblock %}
+
+
 

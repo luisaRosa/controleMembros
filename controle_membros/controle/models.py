@@ -6,6 +6,7 @@ from datetime import date
 from django import forms
 import datetime
 from django.db.models.functions import Extract
+from dateutil.relativedelta import relativedelta
 
 # Create your models here.
 
@@ -25,9 +26,10 @@ class Congregacao(models.Model):
 	class Meta:
 		verbose_name = 'Congregação'
 		verbose_name_plural = 'Congregações'
-
+    
 	nome = models.CharField('Nome', max_length=100)
-	setor = models.IntegerField('Setor')
+	setor = models.CharField('Setor',  max_length=2)
+
 
 	def __str__(self):
 		return self.nome
@@ -43,7 +45,8 @@ class Membro(models.Model):
 	SEXO_CHOICES = (('M', 'Masculino'),('F', 'Feminino'),)
 	RECEBIMENTO = (('A', ' Por aclamação'),
 	('M', 'Com carta de mudança'),
-	('B', 'Por Batismo nas Águas'))
+	('B', 'Por Batismo nas Águas'),
+	('C', 'Por Convenção'))
 
 	ESTADO_CIVIL_CHOICES = (
         ('S', u'Solteiro(a)'),
@@ -67,7 +70,7 @@ class Membro(models.Model):
 	# Dados pessoais
 	nome = models.CharField('Nome', max_length=100)
 	sexo = models.CharField('Sexo', max_length=5, choices=SEXO_CHOICES, default='M')
-	data_nascimento = models.DateField('Data de Nascimento')
+	data_nascimento = models.DateField('Data de Nascimento')	
 	estado_civil = models.CharField('Estado Civil', max_length=5, choices=ESTADO_CIVIL_CHOICES, default='S')
 	conjuge = models.CharField('Cônjuge', max_length=100, blank=True)
 	identidade = models.BigIntegerField('Identidade' )
@@ -98,28 +101,44 @@ class Membro(models.Model):
 	def __str__(self):
 		return self.nome
 
+	def getSituacao():
+		return Membro.STATUS_CHOICES
+
+	def idade():
+		return date.today() - self.data_nascimento
+
+
 	def aniversariantes_mes(self, congregacao):
 
 		data  = date.today() # pega a data de hoje
-		
+
+		ativos = Membro.objects.filter(status='A').order_by(Extract('data_nascimento','day'))	
+		  
 		if int(congregacao) > 0:
-			membros = Membro.objects.filter(congregacao_id =congregacao).order_by(Extract('data_nascimento','day'))			
+			membros = ativos.filter(congregacao_id =congregacao)		
 		else:
-			membros = Membro.objects.all().order_by(Extract('data_nascimento','day'))
-			
-		print(membros)
-
-		aniversariantes = []
-
+			membros = ativos			
+		
+		aniversariantes = []	
+    
 		for membro in membros:			
 			if data.month == membro.data_nascimento.month:
 				aniversariantes.append(membro)			
 					
 		return aniversariantes
 
-	def lista_obreiros(self):
+	def lista_obreiros(self, select, members_selected=None):
 
-		membros = 	Membro.objects.all()
+		if members_selected == None:
+			membros = Membro.objects.filter(status='A')
+		else:
+			if select == 0:
+				print("aqui123")
+				membros = members_selected
+			elif select == 1:
+				membros = members_selected.filter(status='A')
+			else:
+				membros = members_selected.filter(status='I')
 		obreiros = []
 
 		for membro in membros:
@@ -127,7 +146,62 @@ class Membro(models.Model):
 				obreiros.append(membro)
 		return obreiros
 
+	def getIdade(membros, options):
+		
+		idades = []
+		hoje = date.today()		
 
+		for membro in membros:
+			idade = relativedelta(hoje, membro.data_nascimento).years
+			print(idade)
+			if int(options)==1:				
+				if idade<18:
+					idades.append(membro)
+			elif int(options) == 2:
+				if idade>=18 and idade <=24:
+					idades.append(membro)
+			elif int(options) == 3:
+				if idade>=25 and idade <30:
+					idades.append(membro)
+			elif int(options) == 4:
+				if idade>=31 and idade <=60:
+					idades.append(membro)
+			elif int(options)>60:
+				idades.append(membro)
+			
+		return idades	
+
+
+
+	def getMembers(self, cargo, congregacao, idade, situacao):
+
+		members_selected = Membro.objects.all()		
+
+		if int(congregacao) == int(cargo) == int(idade) == (situacao) == 0:			
+			return members_selected
+		elif int(congregacao)>0 and int(cargo)>0 and int(idade)>0 and situacao != 0:
+			members_selected =  members_selected.filter(congregacao_id=congregacao, cargo_id=cargo, status=situacao) ## add o filtro de idade
+			return Membro.getIdade(members_selected, idade)
+		else:
+			print(members_selected)
+					
+			if  int(congregacao)>0 :
+				members_selected = members_selected.filter(congregacao_id=congregacao)			
+			if  situacao!= '0':
+				members_selected = 	members_selected.filter(status=situacao)
+			if int(cargo)>0:
+				members_selected = members_selected.filter(cargo_id=cargo)
+			elif int(cargo) == -1:
+				if situacao == '0':
+					members_selected = Membro.lista_obreiros(self, 0, members_selected)
+				elif situacao == 'A':
+					members_selected = Membro.lista_obreiros(self, 1, members_selected)
+				else:
+					members_selected = Membro.lista_obreiros(self, 2, members_selected)
+				
+			if int(idade)>0:
+				members_selected = Membro.getIdade(members_selected, idade)			
+		return members_selected
 
 	def ative_members():
 		if self.status =='A':
@@ -135,10 +209,6 @@ class Membro(models.Model):
 
 
 		#actions = (('ative_members',  	('Membros Ativos')),)
-
-
-
-
 
 
 class Endereco(models.Model):

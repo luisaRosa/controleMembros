@@ -7,9 +7,11 @@ from reportlab.lib.units import inch, mm
 from reportlab.pdfgen import canvas
 import os.path
 from reportlab.lib import colors
+from django.contrib import messages
 
 class Print:
     def __init__(self, buffer, pagesize):
+        
         self.buffer = buffer
         if pagesize == 'A4':
             self.pagesize = A4
@@ -92,17 +94,20 @@ class Print:
             tabela.append([str(id_)+"                             ", membro.nome+"                                                                                          ", data])
             id_+=1
             #elements.append(Paragraph(str(membro.matricula) +"   -    "+ membro.nome+ "     "+ data, styles['Normal']))
-        
-        T = Table(tabela)
-        T.setStyle(TableStyle(colWidths=[4.3 * inch, 4.3 * inch, 4.3 * inch],
+      
+            T = Table(tabela)
+            T.setStyle(TableStyle(colWidths=[4.3 * inch, 4.3 * inch, 4.3 * inch],
                      rowHeights=[5.5 * inch], style=chart_style))
-        elements.append(T)
+            elements.append(T)
+        
+        
 
         doc.build(elements,canvasmaker=NumberedCanvas)
 
         # Get the value of the BytesIO buffer and write it to the response.
         pdf = buffer.getvalue()
         buffer.close()
+
 
         return pdf
 
@@ -142,7 +147,7 @@ class Print:
 
             # Draw things on the PDF. Here's where the PDF generation happens.
             # See the ReportLab documentation for the full list of functionality.
-            obreiros = Membro.lista_obreiros(self)
+            obreiros = Membro.lista_obreiros(self,1)
             elements.append(Paragraph('Relação de Obreiros', styles['Heading2']))
             elements.append(Paragraph(" ", styles['Normal']))
             tabela = []
@@ -156,6 +161,81 @@ class Print:
                         rowHeights=[5.5 * inch], style=chart_style))
             elements.append(T)
 
+            doc.build(elements,canvasmaker=NumberedCanvas)
+
+            # Get the value of the BytesIO buffer and write it to the response.
+            pdf = buffer.getvalue()
+            buffer.close()
+
+            return pdf
+
+
+    def print_personalizados(self, titulo, campos, filtros):
+
+            buffer = self.buffer
+            doc = SimpleDocTemplate(buffer,
+                                    rightMargin=inch/4,
+                                    leftMargin=inch/4,
+                                    topMargin=inch/4,
+                                    bottomMargin=inch/4,
+                                    pagesize=self.pagesize)
+
+            # Our container for 'Flowable' objects
+            elements = []
+            # A large collection of style sheets pre-made for us
+            styles = getSampleStyleSheet()
+            styles.add(ParagraphStyle(name='centered', alignment=TA_CENTER))
+
+            path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'header.png')
+            logo = Image(path)
+            logo.drawHeight, logo.drawWidth = 1.2*inch, 6.7*inch
+
+            p = Paragraph("",styles['Normal'])
+
+            data= [[logo,p]]
+
+            chart_style = TableStyle([('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                            ('VALIGN', (0, 0), (-1, -1), 'CENTER')])
+        
+            header=Table(data)
+            #header.setStyle(TableStyle(colWidths=[1.3 * inch, 1.3 * inch],
+                        #rowHeights=[1.5 * inch], style=chart_style))
+        
+            elements.append(header)            
+           
+            elements.append(Paragraph(titulo, styles['Heading2']))
+            elements.append(Paragraph(" ", styles['Normal']))
+
+            membros = Membro.getMembers(self, filtros[0], filtros[1], filtros[2], filtros[3])                      
+
+            tabela = []
+
+            caption = []
+
+            caption.append("Número")
+            caption.append("  ")
+
+            for c in campos:
+                caption.append(c) 
+                caption.append("  ")
+            tabela.append(caption)
+
+            for i, membro in enumerate(membros):
+                 line = []
+                 line.append(str(i+1))   
+                 line.append("  ")
+                 for c in campos:                   
+                    line.append(getattr(membro, c))
+                    line.append("  ")
+
+                 tabela.append(line)            
+                #elements.append(Paragraph(str(membro.matricula) +"   -    "+ membro.nome+ "     "+ data, styles['Normal']))
+            
+            T = Table(tabela)
+            T.setStyle(TableStyle(colWidths=[4.3 * inch, 4.3 * inch],
+                        rowHeights=[5.5 * inch], style=chart_style))
+            elements.append(T)
+        
             doc.build(elements,canvasmaker=NumberedCanvas)
 
             # Get the value of the BytesIO buffer and write it to the response.
